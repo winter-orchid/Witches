@@ -28,7 +28,7 @@ int main(void) {
     Color col;
     int level;
     int manaMax;
-
+    Texture2D bg = LoadTexture("Assets/BG.png");
 
     if (!RunMainMenu()) {
         CloseWindow();
@@ -82,6 +82,15 @@ int main(void) {
                 //drawing
                 BeginDrawing();
                 ClearBackground(RAYWHITE);
+                //BG
+                Rectangle sourceRec = { 0.0f, 0.0f, (float)bg.width, (float)bg.height };
+                Rectangle destRec = { 0.0f, 0.0f, winX, winY };
+                Vector2 origin = { 0.0f, 0.0f };
+                DrawTexturePro(bg, sourceRec, destRec, origin, 0.0f, WHITE);
+
+
+                DrawTexture(bg, -500, -500, LIGHTGRAY);
+
                 //Game state
                 if (newEn.hp <= 0) {
                     GameState = NO_ENEMY;
@@ -92,11 +101,11 @@ int main(void) {
 
 
                 //Draw chars & UI
-                DrawText("Choose Action", 20, 20, 60, DARKGRAY);
+                DrawText("Choose Action", 20, 20, 60, col);
                 DrawTexture(icon, 40, winY / 2 - 200, RAYWHITE);
                 if (strcmp(newEn.name, "Dark Wizard") == 0 && newEn.hp > 0) {
-                    DrawTexture(enIcon, winX - 600, winY / 2 - 200, RAYWHITE);
-                    DrawText(TextFormat("Hp: %d", newEn.hp), winX - 600, winY / 2 + 280, 60, DARKGRAY);
+                    DrawTexture(enIcon, winX - 600, winY / 2 + 200 , RAYWHITE);
+                    DrawText(TextFormat("Hp: %d", newEn.hp), winX - 600, winY / 2 + 680, 60, RAYWHITE);
                 }
                 //gui style
 
@@ -214,8 +223,8 @@ int main(void) {
                     frameCountd--;
                 }
                 //statuses
-                DrawText(TextFormat("Lvl: %d    Exp: %d/%d", level, Player.exp, level*500+500), 20, winY - 110, 50, BLACK);
-                DrawText(TextFormat("Hp: %d/%d    Mp: %d/%d", Player.hp, 100+level*10, Player.mana, manaMax), 20, winY - 60, 50, BLACK);
+                DrawText(TextFormat("Lvl: %d    Exp: %d/%d", level, Player.exp, level*500+500), 20, winY - 110, 50, RAYWHITE);
+                DrawText(TextFormat("Hp: %d/%d    Mp: %d/%d", Player.hp, 100+level*10, Player.mana, manaMax), 20, winY - 60, 50, RAYWHITE);
 
                 EndDrawing();
                 break;
@@ -235,6 +244,7 @@ int main(void) {
                 }
                 BeginDrawing();
                 ClearBackground(RAYWHITE);
+                DrawTexture(bg, 0, 0, LIGHTGRAY);
                 printf("Enemy turn\n");
                 DrawText("You are attacked", winX/2 - btnSX, winY / 2, 100, DARKGRAY);
                 frameCountd --;
@@ -270,6 +280,8 @@ int main(void) {
                 }
                 BeginDrawing();
                 ClearBackground(RAYWHITE);
+                DrawTexture(bg, 0, 0, LIGHTGRAY);
+
                 DrawText("Enemy defeated!", winX/2 - btnSX/1.5, 60, winX/26, DARKGRAY);
                 DrawText(infoFormat, winX/2 - btnSX*1.5, winY / 2-120, winX/30, DARKGRAY);
                 if (level > temp) {

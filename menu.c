@@ -26,6 +26,8 @@ bool RunMainMenu(void)
     float btnSizeX = 420, btnSizeY = 130;
     float mid = GetScreenWidth()/2 -btnSizeX/2;
     float midY = GetScreenHeight()/2 -btnSizeY/2;
+    Texture2D bg = LoadTexture("Assets/BG.png");
+
 
     GuiSetStyle(DEFAULT, TEXT_SIZE, 50);
 
@@ -33,10 +35,10 @@ bool RunMainMenu(void)
     {
         BeginDrawing();
         ClearBackground(RAYWHITE);
-
+        DrawTexture(bg, 0, 0, DARKGRAY);
         switch (screen) {
             case SCREEN_MAIN:
-                DrawText("Witches", mid-100, 20, 160, DARKGRAY);
+                DrawText("Witches", mid-100, 20, 160, BLACK);
                 if (GuiButton((Rectangle){ mid, midY, btnSizeX, btnSizeY }, "Play")) {
                     screen = SCREEN_CLASS_SELECT;
                 }
