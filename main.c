@@ -13,7 +13,7 @@ int main(void) {
     Texture2D icon;
     Texture2D enIcon;
 
-    InitWindow(1920, 1080, "raylib + raygui test");
+    InitWindow(0, 0, "raylib + raygui test");
     SetTargetFPS(24);
 
     int winY = GetScreenHeight();
@@ -25,6 +25,7 @@ int main(void) {
     int attacked = false;
     int turning = false;
     int multi = 1;
+    Color col;
 
 
     if (!RunMainMenu()) {
@@ -32,8 +33,14 @@ int main(void) {
         return 0;
     }
 
-
     //initialization
+
+    if (Player.classID == 1) {
+        col = (Color){153, 186, 204, 255};
+    }else if (Player.classID == 2) {
+        col = (Color){204, 153, 153, 255};
+    }
+
     inventoryT Inventory[] = {
         {"Health Pot", 1, 0},
         {"Mana Pot", 2, 0},
@@ -43,7 +50,7 @@ int main(void) {
     static const int itemCount = sizeof(Inventory) / sizeof(Inventory[0]);
 
     spells Spells[] = {
-        {"...", 20, -5},
+        {"...", 15, -5},
         {"...", 50, 15},
     };
 
@@ -56,6 +63,8 @@ int main(void) {
     } else if (Player.classID == 2) {
         Spells[0].name = "Flame Shot";
         Spells[1].name = "Fire Typhoon";
+        Spells[0].dmg = 20;
+        Spells[1].mana = 20;
         icon = LoadTexture("Assets/FW.png");
     }
 
@@ -85,8 +94,12 @@ int main(void) {
                     DrawTexture(enIcon, winX - 600, winY / 2 - 200, RAYWHITE);
                     DrawText(TextFormat("Hp: %d", newEn.hp), winX - 600, winY / 2 + 280, 60, DARKGRAY);
                 }
+                //gui style
 
                 GuiSetStyle(DEFAULT, TEXT_SIZE, 50);
+                GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(col));
+                GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+
                 if (frameCountd <= 0) {
                     //buttons/actions
                     if (GuiButton((Rectangle){20, 110, btnSX, btnSY}, "Attacks")) {
@@ -105,9 +118,24 @@ int main(void) {
                         DrawRectangle(20 + btnSX, 100 + btnSY / 2, 2 * btnGap, 20, LIGHTGRAY);
                         DrawRectangle(btnSX + 2 * btnGap, 120, btnGap, (spellCount) * btnSY, LIGHTGRAY);
                         for (int i = 0; i < spellCount; i++) {
+                            if (Spells[i].mana >= 0) {
+                                DrawText(TextFormat("%d dmg/-%d mana",Spells[i].dmg, abs(Spells[i].mana)),
+                                    2*btnSX + 3*btnGap,
+                                    i * btnSY + btnGap + 110+ btnSY/2.3,
+                                    40,
+                                    DARKGRAY);
+                            }else {
+                                DrawText(TextFormat("%d dmg/+%d mana",Spells[i].dmg, abs(Spells[i].mana)),
+                                    2*btnSX + 3*btnGap,
+                                    i * btnSY + btnGap + 110+ btnSY/2.3,
+                                    40,
+                                    DARKGRAY);
+                            }
                             if (GuiButton((Rectangle){
-                                              btnSX + 3 * btnGap, i * btnSY + btnGap + 110, btnSX - btnGap,
-                                              btnSY - btnGap
+                                btnSX + 3 * btnGap,
+                                i * btnSY + btnGap + 110,
+                                btnSX - btnGap,
+                                btnSY - btnGap
                                           }, Spells[i].name)) {
                                 isOpen = false;
                                 if (Player.mana < Spells[i].mana) {
@@ -127,10 +155,18 @@ int main(void) {
                         DrawRectangle(20 + btnSX, 230 + btnSY / 2, 2 * btnGap, 20, LIGHTGRAY);
                         DrawRectangle(btnSX + 2 * btnGap, 120, btnGap, (itemCount) * btnSY, LIGHTGRAY);
                         for (int i = 0; i < itemCount; i++) {
+                            DrawText(TextFormat("%d held",Inventory[i].count),
+                                2*btnSX + 3*btnGap,
+                                i * btnSY + btnGap + 110+ btnSY/2.3,
+                                40,
+                                DARKGRAY);
                             if (GuiButton((Rectangle){
-                                              btnSX + 3 * btnGap, i * btnSY + btnGap + 110, btnSX - btnGap,
-                                              btnSY - btnGap
-                                          }, Inventory[i].itemName)) {
+                                btnSX + 3 * btnGap,
+                                i * btnSY + btnGap + 110,
+                                btnSX - btnGap,
+                                btnSY - btnGap
+                                          },
+                                          Inventory[i].itemName)) {
                                 isItemsOpen = false;
                                 if (Inventory[i].count == 0) {
                                     snprintf(infoFormat, sizeof(infoFormat), "None held!");
@@ -174,6 +210,7 @@ int main(void) {
                 if (frameCountd == 0) {
                     GameState = PLAYER_TURN;
                     attacked = false;
+                    Player.mana += 3;
                     break;
                 }
                 if (!attacked) {
@@ -192,6 +229,7 @@ int main(void) {
                     newEn = (enemyT){"Dark Wizard", 10, 50};
                     GameState = PLAYER_TURN;
                     turning = false;
+                    Player.mana += 5;
                     break;
                 }
                 if (!turning) {
@@ -212,7 +250,7 @@ int main(void) {
                 break;
         }
     }
-
+    UnloadTexture(enIcon);
     UnloadTexture(icon);
     CloseWindow();
     return 0;
