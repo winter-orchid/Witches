@@ -13,6 +13,7 @@ typedef struct {
     int classID;
     int hp;
     int mana;
+    int exp;
 }playerT;
 
 extern playerT Player;
@@ -37,6 +38,7 @@ typedef struct {
     char *name;
     int dmg;
     int hp;
+    int reward;
 }enemyT;
 
 typedef enum {

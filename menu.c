@@ -53,6 +53,7 @@ bool RunMainMenu(void)
                         Player.classID = classes[i].classID;
                         Player.hp = classes[i].hp;
                         Player.mana = classes[i].mana;
+                        Player.exp = 0;
                         started = true;
                     }
                 }

@@ -21,11 +21,13 @@ int main(void) {
     int btnSX = winX / 5;
     int btnSY = winY / 13;
     int btnGap = 30;
-    enemyT newEn = {"Dark Wizard", 10, 50};
+    enemyT newEn = {"Dark Wizard", 10, 50, 500};
     int attacked = false;
     int turning = false;
     int multi = 1;
     Color col;
+    int level;
+    int manaMax;
 
 
     if (!RunMainMenu()) {
@@ -60,12 +62,14 @@ int main(void) {
         Spells[0].name = "Ice Spike";
         Spells[1].name = "Snow Storm";
         icon = LoadTexture("Assets/IW.png");
+        manaMax = 100;
     } else if (Player.classID == 2) {
         Spells[0].name = "Flame Shot";
         Spells[1].name = "Fire Typhoon";
         Spells[0].dmg = 20;
         Spells[1].mana = 20;
         icon = LoadTexture("Assets/FW.png");
+        manaMax = 50;
     }
 
     enIcon = LoadTexture("Assets/DW.png");
@@ -145,6 +149,9 @@ int main(void) {
                                     snprintf(infoFormat, sizeof(infoFormat), "You used %s", Spells[i].name);
                                     frameCountd = 40;
                                     Player.mana -= Spells[i].mana;
+                                    if (Player.mana > manaMax) {
+                                        Player.mana = manaMax;
+                                    }
                                     newEn.hp -= Spells[i].dmg*multi;
                                     multi = 1;
                                 }
@@ -175,8 +182,14 @@ int main(void) {
                                 if (Inventory[i].count > 0) {
                                     if (Inventory[i].itemID == 1) {
                                         Player.hp += 30;
+                                        if (Player.hp > 100+level*10) {
+                                            Player.hp = 100+level*10;
+                                        }
                                     } else if (Inventory[i].itemID == 2) {
                                         Player.mana += 20;
+                                        if (Player.mana > manaMax) {
+                                            Player.mana = manaMax;
+                                        }
                                     } else if (Inventory[i].itemID == 3) {
                                         multi = 2;
                                     }
@@ -201,8 +214,8 @@ int main(void) {
                     frameCountd--;
                 }
                 //statuses
-
-                DrawText(TextFormat("Hp: %d Mp: %d", Player.hp, Player.mana), 20, winY - 100, 60, BLACK);
+                DrawText(TextFormat("Lvl: %d    Exp: %d/%d", level, Player.exp, level*500+500), 20, winY - 110, 50, BLACK);
+                DrawText(TextFormat("Hp: %d/%d    Mp: %d/%d", Player.hp, 100+level*10, Player.mana, manaMax), 20, winY - 60, 50, BLACK);
 
                 EndDrawing();
                 break;
@@ -211,6 +224,9 @@ int main(void) {
                     GameState = PLAYER_TURN;
                     attacked = false;
                     Player.mana += 3;
+                    if (Player.mana > manaMax) {
+                        Player.mana = manaMax;
+                    }
                     break;
                 }
                 if (!attacked) {
@@ -226,12 +242,16 @@ int main(void) {
                 break;
             case NO_ENEMY:
                 if (frameCountd == 0) {
-                    newEn = (enemyT){"Dark Wizard", 10, 50};
+                    newEn = (enemyT){"Dark Wizard", 10, 50, 400};
                     GameState = PLAYER_TURN;
                     turning = false;
                     Player.mana += 5;
+                    if (Player.mana > manaMax) {
+                        Player.mana = manaMax;
+                    }
                     break;
                 }
+                int temp;
                 if (!turning) {
                     int gen = rand() % 5;
                     for (int i = 0; i < itemCount; i++) {
@@ -240,11 +260,21 @@ int main(void) {
                             snprintf(infoFormat, sizeof(infoFormat), "You pick up a %s from him", Inventory[i].itemName);
                         }
                     }
+                    Player.exp += newEn.reward;
+                    temp = level;
+                    if (Player.exp >= level*500+500) {
+                        level++;
+                        Player.exp = 0;
+                    }
                     turning = true;
                 }
                 BeginDrawing();
                 ClearBackground(RAYWHITE);
-                DrawText(infoFormat, winX/2 - btnSX*1.5, winY / 2, winX/30, DARKGRAY);
+                DrawText("Enemy defeated!", winX/2 - btnSX/1.5, 60, winX/26, DARKGRAY);
+                DrawText(infoFormat, winX/2 - btnSX*1.5, winY / 2-120, winX/30, DARKGRAY);
+                if (level > temp) {
+                    DrawText("You leveled up!", winX/2 - btnSX/1.9, winY / 2, winX/30, DARKGRAY);
+                }
                 frameCountd --;
                 EndDrawing();
                 break;
